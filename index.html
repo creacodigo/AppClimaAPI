@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chequea el Clima!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f0f4f7;
+        margin: 0;
+      }
+      .container {
+        background-color: #ffffff;
+        padding: 2em;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 90%;
+        max-width: 500px;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 1em;
+      }
+      .input-group {
+        margin-bottom: 1em;
+      }
+      .input-group input {
+        padding: 0.8em;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 0.5em;
+      }
+      button {
+        padding: 0.8em 1.5em;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #weather-info {
+        margin-top: 1.5em;
+        text-align: left;
+        border-top: 1px solid #eee;
+        padding-top: 1.5em;
+      }
+      #weather-info h2 {
+        color: #555;
+        margin: 0;
+      }
+      #weather-info p {
+        margin: 0.5em 0;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Como anda el Clima?</h1>
+      <div class="input-group">
+        <input
+          type="text"
+          id="cityInput"
+          placeholder="Nombre de la Ciudad (Ej. Bogotá)"
+        />
+        <input
+          type="text"
+          id="countryInput"
+          placeholder="Código del país (Ej. Col) - Opcional"
+        />
+      </div>
+      <button id="getWeatherBtn">Obtener Clima</button>
+      <div id="weather-info">
+        <!-- Aqui se presentaran los datos del clima -->
+      </div>
+    </div>
+
+    <script>
+      //Aqui necesitaras la API KEY que obtienes en OpenWeatherMap API
+      const API_KEY = "f95de489f6856aefb2ed230c2f664f56";
+      const cityInput = document.getElementById("cityInput");
+      const countryInput = document.getElementById("countryInput");
+      const getWeatherBtn = document.getElementById("getWeatherBtn");
+      const weatherInfoDiv = document.querySelector("#weather-info");
+
+      //Event Listener o sensor de evento
+      getWeatherBtn.addEventListener("click", () => {
+        //console.log("Prueba del evento click :)");
+        const city = cityInput.value;
+        const country = countryInput.value;
+
+        if (city.trim() === "") {
+          alert("Por favor, ingresa el nombre de una ciudad!");
+          return;
+        }
+        //EndPoint
+        const API_URL = `https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API_KEY}&units=metric&lang=es`;
+
+        //Llamada a la API
+        fetch(API_URL)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Error ${response.status}: Ciudad no encontrada.`
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            displayWeather(data);
+          })
+          .catch((error) => {
+            weatherInfoDiv.innerHTML = `<p style="color: red;">${error.message}</p>`;
+          });
+      });
+
+      //funcion de salida
+      function displayWeather(data) {
+        const cityName = data.name;
+        const temp = data.main.temp;
+        const description = data.weather[0].description;
+        const humidity = data.main.humidity;
+        const windSpeed = data.wind.speed;
+
+        weatherInfoDiv.innerHTML = `
+        <h2>Clima en ${cityName}</h2>
+        <p><strong>Temperatura:</strong> ${temp}°C</p>
+        <p><strong>Descripción:</strong> ${description}</p>
+        <p><strong>Humedad:</strong> ${humidity}%</p>
+        <p><strong>Velocidad:</strong> ${windSpeed} m/s</p>`;
+      }
+    </script>
+  </body>
+</html>
