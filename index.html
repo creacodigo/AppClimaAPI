@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="es">
   <head>
+    <!-- Junior Programmer - Projecto Biblia HTML CSS JS con conexion a API-->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chequea el Clima!</title>
+    <title>Bible App</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -64,83 +65,70 @@
         margin: 0.5em 0;
         color: #666;
       }
+      p {
+        text-align: justify;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Como anda el Clima?</h1>
+      <h1>Biblia en linea</h1>
       <div class="input-group">
         <input
           type="text"
-          id="cityInput"
-          placeholder="Nombre de la Ciudad (Ej. Bogotá)"
-        />
-        <input
-          type="text"
-          id="countryInput"
-          placeholder="Código del país (Ej. Col) - Opcional"
+          id="verseInput"
+          placeholder="Escribe la cita Biblica (Ej. John 3:16)"
         />
       </div>
-      <button id="getWeatherBtn">Obtener Clima</button>
-      <div id="weather-info">
-        <!-- Aqui se presentaran los datos del clima -->
+      <button id="getReferenceBtn">Buscar</button>
+      <div id="verse-info">
+        <!-- Aqui se presentaran los datos de la cita despues de obtener la info de la API-->
       </div>
     </div>
 
     <script>
-      //Aqui necesitaras una llave a la API (API KEY) que obtienes en OpenWeatherMap API
-      // *** No Olvides Reemplazar con tu API key en la siguiente linea *__*
-      const API_KEY = "f95de489f6856aefb2ed230c2f664f56";
-      const cityInput = document.getElementById("cityInput");
-      const countryInput = document.getElementById("countryInput");
-      const getWeatherBtn = document.getElementById("getWeatherBtn");
-      const weatherInfoDiv = document.querySelector("#weather-info");
+      // *** No necesitas una llave de API para este proyecto *__*
+      const verseInput = document.getElementById("verseInput");
+      const getReference = document.getElementById("getReferenceBtn");
+      const verseDiv = document.querySelector("#verse-info");
 
       //Event Listener o sensor de evento
-      getWeatherBtn.addEventListener("click", () => {
+      getReference.addEventListener("click", () => {
         //console.log("Prueba del evento click :)");
-        const city = cityInput.value;
-        const country = countryInput.value;
+        const verse = verseInput.value;
 
-        if (city.trim() === "") {
-          alert("Por favor, ingresa el nombre de una ciudad!");
+        if (verse.trim() === "") {
+          alert("Por favor, ingresa el nombre de una referencia. Ej: Gen 1:1");
           return;
         }
         //EndPoint
-        const API_URL = `https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API_KEY}&units=metric&lang=es`;
+        const API_URL = `https://bible-api.com/${encodeURIComponent(verse)}?translation=kjv`;
 
         //Llamada a la API
         fetch(API_URL)
           .then((response) => {
             if (!response.ok) {
-              throw new Error(
-                `Error ${response.status}: Ciudad no encontrada.`,
-              );
+              throw new Error(`Error ${response.status}: Cita no encontrada.`);
             }
             return response.json();
           })
           .then((data) => {
-            displayWeather(data);
+            displayVerse(data);
           })
           .catch((error) => {
-            weatherInfoDiv.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            verseDiv.innerHTML = `<p style="color: red;">${error.message}</p>`;
           });
       });
 
       //funcion de salida
-      function displayWeather(data) {
-        const cityName = data.name;
-        const temp = data.main.temp;
-        const description = data.weather[0].description;
-        const humidity = data.main.humidity;
-        const windSpeed = data.wind.speed;
+      function displayVerse(data) {
+        //console.log("Prueba de la funcion displayVerse");
+        const reference = data.reference;
+        const verses = data.verses.map((v) => v.verse + " " + v.text).join(" ");
 
-        weatherInfoDiv.innerHTML = `
-        <h2>Clima en ${cityName}</h2>
-        <p><strong>Temperatura:</strong> ${temp}°C</p>
-        <p><strong>Descripción:</strong> ${description}</p>
-        <p><strong>Humedad:</strong> ${humidity}%</p>
-        <p><strong>Velocidad:</strong> ${windSpeed} m/s</p>`;
+        verseDiv.innerHTML = `
+        <h2>Referencia ${reference}</h2>
+        <p><strong>Descripción:</strong> ${verses}</p>`;
       }
     </script>
   </body>
